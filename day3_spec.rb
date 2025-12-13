@@ -20,8 +20,16 @@ RSpec.describe Day3 do
 
   describe Day3::Part1 do
     describe '#run' do
-      it 'given test data it returns expected value' do
+      it 'returns expected value, given test data' do
         expect(Day3::Part1.run(battery_banks)).to eq(357)
+      end
+    end
+  end
+
+  describe Day3::Part2 do
+    describe '#run' do
+      it 'returns expected value, given test data' do
+        expect(Day3::Part2.run(battery_banks)).to eq(3_121_910_778_619)
       end
     end
   end
