@@ -25,4 +25,12 @@ RSpec.describe Day4 do
       end
     end
   end
+
+  describe Day4::Part2 do
+    describe '#run' do
+      it 'returns expected value, given test data' do
+        expect(Day4::Part2.run(diagram)).to eq(43)
+      end
+    end
+  end
 end
