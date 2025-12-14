@@ -17,9 +17,11 @@ module Day3
       first_index = 0
       second_index = 1
 
-      (1..(batteries.size - 2)).each do |i|
-        first_index = i if batteries[i] > batteries[first_index]
-        second_index = (i + 1) if batteries[i + 1] > batteries[second_index] || second_index <= first_index
+      (1..(batteries.size - 2)).each do |battery_index|
+        first_index = battery_index if batteries[battery_index] > batteries[first_index]
+        if batteries[battery_index + 1] > batteries[second_index] || second_index <= first_index
+          second_index = (battery_index + 1)
+        end
       end
 
       batteries[first_index] * 10 + batteries[second_index]
@@ -33,19 +35,18 @@ module Day3
   # Part 2 - now find the maximum joltage by turning on exactly twelve batteries
   # each bank
   module Part2
+    def self.turn_on_battery(batteries, on_indices, battery_index)
+      on_indices.each_index do |j|
+        joltage_higher = batteries[battery_index + j] > batteries[on_indices[j]]
+        previous_digit_shifted = j.positive? && on_indices[j] <= on_indices[j - 1]
+        on_indices[j] = battery_index + j if joltage_higher || previous_digit_shifted
+      end
+    end
+
     def self.maximum_battery_bank_joltage(batteries)
       on_indices = (0..11).to_a
-
-      (1..(batteries.size - 12)).each do |i|
-        (0..11).each do |j|
-          if batteries[i + j] > batteries[on_indices[j]] || j.positive? && on_indices[j] <= on_indices[j - 1]
-            on_indices[j] =
-              i + j
-          end
-        end
-      end
-
-      on_indices.map.with_index { |i, j| batteries[i] * 10**(11 - j) }.sum
+      (1..batteries.size - 12).each { |i| turn_on_battery(batteries, on_indices, i) }
+      on_indices.map.with_index { |battery_index, j| batteries[battery_index] * 10**(11 - j) }.sum
     end
 
     def self.run(battery_banks)
