@@ -6,7 +6,7 @@ require_relative 'day3'
 
 RSpec.describe Day3 do
   describe '#load_battery_banks' do
-    it 'loads all ranges' do
+    it 'returns expected battery banks' do
       file = Tempfile.new
       IO.write(file.path, "12345\n67890")
       expect(Day3.load_battery_banks(file.path)).to eq([[1, 2, 3, 4, 5], [6, 7, 8, 9, 0]])
