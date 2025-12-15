@@ -8,15 +8,11 @@ module Day5
 
     reading_available_ids = false
     (IO.readlines filename).each do |ln|
-      if reading_available_ids
-        next available_ids.push(Integer(ln.strip))
-      elsif ln == "\n"
-        reading_available_ids = true
-        next
-      else
-        id_begin, id_end = ln.strip.split('-').map { |x| Integer(x) }
-        fresh_id_ranges.push(id_begin..id_end)
-      end
+      next available_ids.push(Integer(ln.strip)) if reading_available_ids
+      next reading_available_ids = true if ln == "\n"
+
+      id_begin, id_end = ln.strip.split('-').map { |x| Integer(x) }
+      fresh_id_ranges.push(id_begin..id_end)
     end
 
     [fresh_id_ranges, available_ids]
@@ -24,30 +20,28 @@ module Day5
 
   # Part 1: How many available ingredients are fresh?
   module Part1
+    # Index of ingredients that indexes the fresh/spoiled state of ingredient identified by IDs
     class IngredientIndex
-      def find_existing_merged_id_range(id_range)
-        @merged_fresh_id_ranges.index do |merged_id_range|
-          (merged_id_range.include? id_range.begin) || (merged_id_range.include? id_range.end)
+      def find_existing_merged_id_range(range)
+        @merged_fresh_id_ranges.index do |merged_range|
+          (merged_range.include? range.begin) || (merged_range.include? range.end)
         end
       end
 
       def initialize(fresh_id_ranges)
         @merged_fresh_id_ranges = []
-        fresh_id_ranges.each do |id_range|
-          existing_merged_range_index = find_existing_merged_id_range(id_range)
-          if existing_merged_range_index.nil?
-            @merged_fresh_id_ranges.push(id_range)
-          else
-            merged_id_range = @merged_fresh_id_ranges[existing_merged_range_index]
-            updated_merged_range = ([id_range.begin,
-                                     merged_id_range.begin].min..[id_range.end, merged_id_range.end].max)
-            @merged_fresh_id_ranges[existing_merged_range_index] = updated_merged_range
-          end
+        fresh_id_ranges.each do |range|
+          existing_merged_range_index = find_existing_merged_id_range(range)
+          next @merged_fresh_id_ranges.push(range) if existing_merged_range_index.nil?
+
+          merged_range = @merged_fresh_id_ranges[existing_merged_range_index]
+          merged_range = [range.begin, merged_range.begin].min..[range.end, merged_range.end].max
+          @merged_fresh_id_ranges[existing_merged_range_index] = merged_range
         end
       end
 
       def fresh?(ingredient_id)
-        @merged_fresh_id_ranges.any? { |id_range| id_range.include? ingredient_id }
+        @merged_fresh_id_ranges.any? { |range| range.include? ingredient_id }
       end
     end
 
