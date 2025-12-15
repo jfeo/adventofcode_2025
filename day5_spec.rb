@@ -25,4 +25,37 @@ RSpec.describe Day5 do
       end
     end
   end
+
+  describe Day5::IngredientIndex do
+    describe '#count_fresh_ingredients' do
+      def count_fresh_ingredients(ranges)
+        Day5::IngredientIndex.new(ranges).count_fresh_ingredients
+      end
+      it 'returns expected value for non-overlapping ranges' do
+        expect(count_fresh_ingredients([1..10, 20..29])).to eq(20)
+        expect(count_fresh_ingredients([1001..1005, 1..10, 300..300, 5000..5049])).to eq(5 + 10 + 1 + 50)
+      end
+      it 'returns expected value for overlapping ranges' do
+        expect(count_fresh_ingredients([1..10, 1..10])).to eq(10)
+        expect(count_fresh_ingredients([5..19, 11..15])).to eq(15)
+        expect(count_fresh_ingredients([11..15, 5..19])).to eq(15)
+        expect(count_fresh_ingredients([1_000_000..1_000_004, 900_000..2_000_000])).to eq(1_100_001)
+        expect(count_fresh_ingredients([5..15, 11..20, 25..29, 1..10, 3..5, 18..25, 2..2, 0..1])).to eq(30)
+      end
+    end
+  end
+
+  describe Day5::Part2 do
+    describe '#run' do
+      it 'returns expected total number of fresh ingredient IDs, given test input' do
+        total_fresh_ingredients_count = Day5::Part2.run(ingredient_db)
+        expect(total_fresh_ingredients_count).to eq(14)
+      end
+
+      it 'returns a number lower than previous guesses that were too high' do
+        total_fresh_ingredients_count = Day5::Part2.run(Day5.load_ingredient_database('./day5_input.txt'))
+        expect(total_fresh_ingredients_count).to be < 345_486_116_638_844
+      end
+    end
+  end
 end
