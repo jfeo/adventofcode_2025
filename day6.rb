@@ -8,7 +8,7 @@ module Day6
         .split("\n")
         .map { |ln| ln.split(' ') }
         .transpose
-        .map { |problem| [problem[-1], problem[..-2].map { |n| Integer(n) }] }
+        .map { |problem| [problem[-1], problem[..-2].map { |col| Integer(col) }] }
     end
 
     def self.load_worksheet(path)
@@ -19,9 +19,9 @@ module Day6
       worksheet.map do |problem|
         operator, operands = problem
         if operator == '*'
-          operands.reduce(1) { |r, v| r * v }
+          operands.reduce(1) { |agg, v| agg * v }
         elsif operator == '+'
-          operands.reduce(0) { |r, v| r + v }
+          operands.reduce(0) { |agg, v| agg + v }
         else
           raise(StandardError, "invalid operator \"#{operator}\"")
         end
@@ -31,27 +31,28 @@ module Day6
 
   # Part 2 - solve worksheets where numbers are stored column wise
   module Part2
-    def self.reduce_worksheet_column(r, n)
-      arr, cur = r
-      if n.join.strip.empty?
-        arr.push(cur)
-        cur = []
-      elsif n[-1] != ' '
-        cur.push(Integer(n[..-2].join))
-        cur.push(n[-1])
+    def self.reduce_worksheet_column(agg, col)
+      arr, operands = agg
+      return [arr, operands] if col.join.strip.empty?
+
+      operands.push(Integer(col[..-2].join))
+
+      operator = col[-1]
+      if operator != ' '
+        arr.push([operator, operands])
+        [arr, []]
       else
-        cur.push(Integer(n[..-2].join))
+        [arr, operands]
       end
-      [arr, cur]
     end
 
     def self.parse_worksheet(raw_worksheet)
-      a = raw_worksheet.split("\n").map(&:chars)
-      m = a.map(&:size).max
-      b = a.map { |r| r + [' '] * (m - r.size) }
-      c, d = b.transpose.reverse.reduce([[], []]) { |r, n| reduce_worksheet_column(r, n) }
-      c.push(d)
-      c.map { |col| [col[-1], col[..-2]] }
+      split_ws = raw_worksheet.split("\n").map(&:chars)
+      max_row_size = split_ws.map(&:size).max
+      split_balanced_ws = split_ws.map { |agg| agg + [' '] * (max_row_size - agg.size) }
+      transposed_ws = split_balanced_ws.transpose.reverse
+      transposed_ws.push([]) # add empty line to make reducer reduce the last line
+      transposed_ws.reduce([[], []]) { |agg, col| reduce_worksheet_column(agg, col) }[0]
     end
 
     def self.load_worksheet(path)
@@ -62,9 +63,9 @@ module Day6
       worksheet.map do |problem|
         operator, operands = problem
         if operator == '*'
-          operands.reduce(1) { |r, v| r * v }
+          operands.reduce(1) { |agg, v| agg * v }
         elsif operator == '+'
-          operands.reduce(0) { |r, v| r + v }
+          operands.reduce(0) { |agg, v| agg + v }
         else
           raise(StandardError, "invalid operator \"#{operator}\"")
         end
