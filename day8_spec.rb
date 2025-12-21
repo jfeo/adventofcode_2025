@@ -27,7 +27,7 @@ example_input = "162,817,812
 
 example_input_file = Tempfile.new
 IO.write(example_input_file.path, example_input)
-example_junction_boxes = Day8.load_junction_boxes(example_input_file.path)
+example_jboxes = Day8.load_junction_boxes(example_input_file.path)
 
 JunctionBox = Day8::JunctionBox
 
@@ -52,7 +52,7 @@ RSpec.describe JunctionBox do
   end
 end
 
-RSpec.describe Day8 do
+RSpec.describe Day8 do # rubocop:disable Metrics/BlockLength
   describe '#load_junction_boxes' do
     it 'returns expected parsed junction boxes' do
       f = Tempfile.new
@@ -64,19 +64,31 @@ RSpec.describe Day8 do
       expect(Day8.load_junction_boxes(f.path)).to eq(expected)
     end
   end
-end
 
-RSpec.describe Day8::Part1 do
   describe '#pairs' do
     it 'returns all unique unordered pairs' do
-      expect(Day8::Part1.pairs([1, 2, 3])).to eq([[1, 2], [1, 3], [2, 3]])
+      expect(Day8.pairs([1, 2, 3])).to eq([[1, 2], [1, 3], [2, 3]])
     end
   end
 
   describe '#connect_k_closest' do
     it 'returns expected given example input' do
-      circuits = Day8::Part1.connect_k_closest(example_junction_boxes, 10)
+      circuits = Day8.connect_k_closest(example_jboxes, 10)
       expect(circuits.map(&:size).sort { |a, b| b <=> a }[..2]).to eq([5, 4, 2])
+    end
+  end
+
+  describe '#part1' do
+    it 'returns expected given example input' do
+      product = Day8.part1(example_jboxes, 10)
+      expect(product).to eq(40)
+    end
+  end
+
+  describe '#part2' do
+    it 'returns expected given example input' do
+      dist = Day8.part2(example_jboxes)
+      expect(dist).to eq(25_272)
     end
   end
 end
